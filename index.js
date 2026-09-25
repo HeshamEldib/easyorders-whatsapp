@@ -1,7 +1,8 @@
 const express = require("express");
 const { Client, LocalAuth } = require("whatsapp-web.js");
-const qrcode = require("qrcode-terminal");
-
+// const qrcode = require("qrcode-terminal");
+const qrcode = require('qrcode');
+let currentQR = ''; // متغير لحفظ الـ QR
 const app = express();
 app.use(express.json());
 
@@ -23,14 +24,17 @@ const client = new Client({
 });
 
 // توليد كود QR للمسح من الهاتف
-client.on("qr", (qr) => {
-  qrcode.generate(qr, { small: true });
-  console.log("قم بمسح كود QR باستخدام تطبيق واتساب من هاتفك");
+client.on('qr', (qr) => {
+    currentQR = qr;
+    console.log('تم إنشاء كود جديد. ادخل إلى الرابط /qr في المتصفح لمسحه');
 });
 
-client.on("ready", () => {
-  console.log("تم الربط بنجاح! الواتساب جاهز لإرسال الرسائل.");
+// تصفير المتغير عند نجاح الربط
+client.on('ready', () => {
+    currentQR = ''; 
+    console.log('تم الربط بنجاح! الواتساب جاهز لإرسال الرسائل.');
 });
+
 
 client.initialize();
 
@@ -87,6 +91,26 @@ app.post("/webhook/order", async (req, res) => {
     console.error("حدث خطأ أثناء الإرسال:", error);
     res.status(500).send("حدث خطأ داخلي");
   }
+});
+
+app.get('/qr', async (req, res) => {
+    if (!currentQR) {
+        return res.send('<h2>لا يوجد كود QR متاح حالياً. ربما تم الربط بالفعل.</h2>');
+    }
+    try {
+        // تحويل النص إلى صورة Base64 وعرضها كـ HTML
+        const qrImage = await qrcode.toDataURL(currentQR);
+        res.send(`
+            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background-color:#f5f5f5;">
+                <div style="text-align:center;">
+                    <h2>قم بمسح الكود لربط الواتساب</h2>
+                    <img src="${qrImage}" style="width:300px; height:300px; border:2px solid #333; border-radius:10px;" />
+                </div>
+            </div>
+        `);
+    } catch (err) {
+        res.status(500).send('حدث خطأ أثناء توليد الصورة');
+    }
 });
 
 const PORT = process.env.PORT || 3000;
