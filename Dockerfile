@@ -1,25 +1,32 @@
-# استخدام بيئة Node.js الأساسية
-FROM node:18
+FROM node:18-bullseye
 
-# تحديث النظام وتثبيت حزم الكروم والخطوط اللازمة لدعم اللغات (بما فيها العربية)
-RUN apt-get update \
-    && apt-get install -y wget gnupg \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
-      --no-install-recommends \
+# تثبيت كافة المكتبات الأساسية التي يطلبها متصفح كروم في لينكس
+RUN apt-get update && apt-get install -y \
+    libglib2.0-0 \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libxss1 \
+    libxtst6 \
+    ca-certificates \
+    fonts-liberation \
+    --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# تحديد مجلد العمل
 WORKDIR /app
 
-# نسخ ملفات الحزم وتثبيتها
+# نسخ الحزم وتثبيتها
 COPY package*.json ./
 RUN npm install
 
-# نسخ باقي ملفات المشروع
+# نسخ باقي الملفات
 COPY . .
 
-# أمر التشغيل الافتراضي
+# تشغيل السيرفر
 CMD ["node", "index.js"]
