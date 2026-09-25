@@ -1,6 +1,6 @@
-FROM node:18-bullseye
+FROM node:18-bookworm
 
-# تثبيت كافة المكتبات الأساسية التي يطلبها متصفح كروم في لينكس
+# تحديث النظام وتثبيت المكتبات
 RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     libnss3 \
@@ -21,12 +21,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# نسخ الحزم وتثبيتها
 COPY package*.json ./
 RUN npm install
 
-# نسخ باقي الملفات
 COPY . .
 
-# تشغيل السيرفر
 CMD ["node", "index.js"]
