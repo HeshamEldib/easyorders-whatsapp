@@ -1,0 +1,21 @@
+# Node modules (مجلد الحزم الضخم)
+node_modules/
+
+# WhatsApp Auth & Cache (ملفات حساسة جداً)
+.wwebjs_auth/
+.wwebjs_cache/
+
+# Generated Files (الملفات المؤقتة)
+qr-code.png
+
+# Environment variables (للمتغيرات السرية مستقبلاً)
+.env
+
+# Logs (ملفات السجلات)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific files (ملفات النظام الجانبية)
+.DS_Store
+Thumbs.db
