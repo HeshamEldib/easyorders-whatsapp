@@ -7,8 +7,20 @@ app.use(express.json());
 
 // تهيئة عميل الواتساب مع حفظ الجلسة محلياً
 const client = new Client({
-  authStrategy: new LocalAuth(),
-  puppeteer: { args: ["--no-sandbox", "--disable-setuid-sandbox"] }, // ضروري عند الرفع على استضافة
+    authStrategy: new LocalAuth(),
+    puppeteer: {
+        executablePath: '/usr/bin/google-chrome-stable',
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process', // يقلل من استهلاك الرامات
+            '--disable-gpu'
+        ]
+    }
 });
 
 // توليد كود QR للمسح من الهاتف
