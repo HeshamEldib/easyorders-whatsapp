@@ -93,8 +93,18 @@ app.post("/webhook/order", async (req, res) => {
     const message = `أهلاً بك ${customerName} 🌟\nتم استلام طلبك بنجاح من متجر دارفيكس برقم ${orderId}.\n\nتفاصيل شحنتك:\n${productsDetails}الإجمالي المطلوب دفعه للمندوب: ${totalPrice} جنيه (شامل مصاريف الشحن)\n\nلتسريع خروج شحنتك، ستصلك خلال دقائق رسالة آلية من نظام شركة الشحن لمراجعة العنوان. نرجو منك التكرم بفتحها والضغط على زر "تأكيد الطلب" لكي يقوم المندوب باستلام الشحنة وتوصيلها لك.\n\nنحن هنا في خدمتك إذا احتجت لأي مساعدة.`;
 
     // إرسال الرسالة
-    await client.sendMessage(formattedPhone, message);
-    console.log(`تم إرسال الرسالة بنجاح إلى: ${customerPhone}`);
+    // التحقق من وجود حساب واتساب للرقم قبل الإرسال
+console.log(`جاري التحقق من الرقم: ${formattedPhone}`);
+const isRegistered = await client.isRegisteredUser(formattedPhone);
+
+if (!isRegistered) {
+    console.log(`⚠️ الرقم ${customerPhone} ليس لديه حساب واتساب فعال.`);
+    return res.status(404).send('الرقم غير مسجل في واتساب');
+}
+
+// إرسال الرسالة إذا كان الرقم صحيحاً
+await client.sendMessage(formattedPhone, message);
+console.log(`✅ تم إرسال الرسالة بنجاح إلى: ${customerPhone}`);
 
     res.status(200).send("تم الاستلام والإرسال");
   } catch (error) {
