@@ -35,6 +35,21 @@ client.on("ready", () => {
   console.log("تم الربط بنجاح! الواتساب جاهز لإرسال الرسائل.");
 });
 
+// مراقبة فصل الخدمة من واتساب
+client.on('disconnected', (reason) => {
+    console.log('⚠️ تم فصل الواتساب لأسباب:', reason);
+    console.log('جاري محاولة إعادة التشغيل تلقائياً...');
+    client.destroy();
+    setTimeout(() => {
+        client.initialize();
+    }, 5000);
+});
+
+// مراقبة فشل المصادقة (إذا حذفت الجلسة)
+client.on('auth_failure', (msg) => {
+    console.error('❌ فشل في المصادقة، قد تحتاج لمسح كود QR من جديد:', msg);
+});
+
 client.initialize();
 
 // نقطة النهاية (Endpoint) لاستقبال الـ Webhook من إيزي أوردر
